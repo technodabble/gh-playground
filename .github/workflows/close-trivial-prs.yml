@@ -1,0 +1,52 @@
+
+name: Close trivial PRs
+
+on:
+  pull_request:
+    types: [labeled]
+
+jobs:
+  close-trivial-pr:
+    if: github.event.label.name == 'trivial'
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+
+    steps:
+      - name: Fetch CONTRIBUTING.md snippet
+        id: snippet
+        env:
+          REPO: ${{ github.repository }}
+          REF: ${{ github.sha }}
+        run: |
+          SNIPPET=$(curl -sSfL "https://raw.githubusercontent.com/${REPO}/${REF}/CONTRIBUTING.md" \
+            | sed -n '/<!-- start-trival-prs -->/,/<!-- end-trival-prs -->/p' \
+            | sed '/<!--.*-->/d')
+
+          # escape special chars for GitHub Actions output
+          SNIPPET="${SNIPPET//'%'/'%25'}"
+          SNIPPET="${SNIPPET//$'\n'/'%0A'}"
+          SNIPPET="${SNIPPET//$'\r'/'%0D'}"
+
+          echo "snippet=$SNIPPET" >> $GITHUB_OUTPUT
+
+      - name: Comment and Close PR
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          PR_NUMBER=${{ github.event.pull_request.number }}
+          REPO=${{ github.repository }}
+          DEF_BRANCH=${{ github.event.repository.default_branch }}
+          SNIPPET="${{ steps.snippet.outputs.snippet }}"
+
+          gh pr comment $PR_NUMBER --repo $REPO --body "Thank you for your contribution. However, this PR has been automatically closed because it was labeled as **trivial**. As stated in our [CONTRIBUTING.md](../blob/${DEF_BRANCH}/CONTRIBUTING.md):
+
+          ---
+
+          ${SNIPPET}
+
+          ---
+
+          We appreciate meaningful contributions!"
+
+          gh pr close $PR_NUMBER --repo $REPO
