@@ -23,6 +23,11 @@ jobs:
             | sed -n '/<!-- start-trivial-prs -->/,/<!-- end-trivial-prs -->/p' \
             | sed '/<!--.*-->/d')
 
+          # escape special chars for GitHub Actions output
+          SNIPPET="${SNIPPET//'%'/'%25'}"
+          SNIPPET="${SNIPPET//$'\n'/'%0A'}"
+          SNIPPET="${SNIPPET//$'\r'/'%0D'}"
+
           echo "snippet=$SNIPPET" >> $GITHUB_OUTPUT
 
       - name: Comment and Close PR
