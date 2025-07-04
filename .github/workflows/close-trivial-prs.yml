@@ -37,7 +37,7 @@ jobs:
           DEF_BRANCH=${{ github.event.repository.default_branch }}
           SNIPPET="${{ steps.snippet.outputs.snippet }}"
 
-          gh pr comment $PR_NUMBER --repo $REPO --body "Thank you for your contribution. However, this PR has been automatically closed because it was labeled as **trivial**. As stated in our [CONTRIBUTING.md](../blob/${DEF_BRANCH}/CONTRIBUTING.md):
+          gh pr close $PR_NUMBER --repo $REPO --comment "Thank you for your contribution. However, this PR has been automatically closed because it was labeled as **trivial**. As stated in our [CONTRIBUTING.md](../blob/${DEF_BRANCH}/CONTRIBUTING.md):
 
           ---
 
@@ -46,5 +46,3 @@ jobs:
           ---
 
           We appreciate meaningful contributions!"
-
-          gh pr close $PR_NUMBER --repo $REPO
