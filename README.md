@@ -7,3 +7,4 @@ Occasionally, he will make a spelling error, and someone will try to submit a ti
 ## The Merge Queue checks
 
 This attempts to ensure that the merge queue groups are running correctly.
+See: .github/workflows/ci.yml in this repository
