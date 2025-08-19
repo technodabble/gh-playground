@@ -7,15 +7,24 @@ on:  # yamllint disable-line rule:truthy
 
 jobs:
  tests:
-  run: |
+  runs-on: ubuntu-latest
+  steps:
+  - name: Run tests
+    run: |
      sleep 2; echo "Tests Successful"; "[ true ]"
  lints:
-  run: |
+  runs-on: ubuntu-latest
+  steps:
+  - name: Run tests
+    run: |
      sleep 2; echo "Lints Successful"; "[ true ]"
  expensive_checks:
   if: github.event_name == 'merge_group'
-  run: |
-    sleep 300; echo "Expensive checks Successful"; "[ true ]"
+  runs-on: ubuntu-latest
+  steps:
+  - name: Run tests
+    run: |
+     sleep 300; echo "Expensive checks Successful"; "[ true ]"
 
  can_enqueue:
   needs: [tests, lints]
