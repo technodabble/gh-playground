@@ -11,20 +11,20 @@ jobs:
   steps:
   - name: Run tests
     run: |
-     sleep 2; echo "Tests Successful"; "[ true ]"
+     sleep 2; echo "Tests Successful"
  lints:
   runs-on: ubuntu-latest
   steps:
   - name: Run tests
     run: |
-     sleep 2; echo "Lints Successful"; "[ true ]"
+     sleep 2; echo "Lints Successful"
  expensive_checks:
   if: github.event_name == 'merge_group'
   runs-on: ubuntu-latest
   steps:
   - name: Run tests
     run: |
-     sleep 300; echo "Expensive checks Successful"; "[ true ]"
+     sleep 300; echo "Expensive checks Successful"
 
  can_enqueue:
   needs: [tests, lints]
