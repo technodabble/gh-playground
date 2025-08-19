@@ -37,11 +37,16 @@ jobs:
       NEEDS_JSON: "${{toJSON(needs)}}"
      name: Transform outcomes
      run: |
-      echo "ALL_SUCCESS=$(echo "$NEEDS_JSON" | jq '. | to_entries | \
-      map([.value.result == "success", .value.result == "skipped"] | \
-      any) | all')" >>$GITHUB_ENV
+      echo "ALL_SUCCESS=$(echo "$NEEDS_JSON" | jq '. | to_entries | map([.value.result == "success", .value.result == "skipped"] | any) | all')" >>$GITHUB_ENV
    - name: check outcomes
-     run: "[ $ALL_SUCCESS == true ]"
+     run: |
+       # Quote and default to "false" if empty to avoid unary-operator errors
+       if [ "${ALL_SUCCESS:-false}" = "true" ]; then
+         echo "All required jobs succeeded (or were skipped)."
+       else
+         echo "Required jobs failed." >&2
+         exit 1
+       fi
 
  can_merge:
   needs: [tests, lints, expensive_checks]
@@ -55,8 +60,18 @@ jobs:
       NEEDS_JSON: "${{toJSON(needs)}}"
      name: Transform outcomes
      run: |
-      echo "ALL_SUCCESS=$(echo "$NEEDS_JSON" | jq '. | to_entries | \
-      map([.value.result == "success", .value.result == "skipped"] | \
-      any) | all')" >>$GITHUB_ENV
+      echo "ALL_SUCCESS=$(echo "$NEEDS_JSON" | jq '. | to_entries | map([.value.result == "success", .value.result == "skipped"] | any) | all')" >>$GITHUB_ENV
    - name: check outcomes
-     run: "[ $ALL_SUCCESS == true ]"
+     run: |
+       # Quote and default to "false" if empty to avoid unary-operator errors
+       if [ "${ALL_SUCCESS:-false}" = "true" ]; then
+         echo "All required jobs succeeded (or were skipped)."
+       else
+         echo "Required jobs failed." >&2
+         exit 1
+       fi
+  
+ can_see_status:
+  runs-on: ubuntu-latest
+  steps:
+   - run: true
