@@ -1,45 +1,77 @@
-on:
- - merge_group:
- - pull_request:
+---
+name: Continuous Integration
+
+on:  # yamllint disable-line rule:truthy
+ merge_group:
+ pull_request:
+
 jobs:
-  tests:
+ tests:
+  runs-on: ubuntu-latest
+  steps:
+  - name: Run tests
     run: |
-      sleep 2; echo "Tests Successful"; "[ true ]"
-  lints:
+     sleep 2; echo "Tests Successful"
+ lints:
+  runs-on: ubuntu-latest
+  steps:
+  - name: Run tests
     run: |
-      sleep 2; echo "Lints Successful"; "[ true ]"
-  expensive_checks:
-    if: github.event_name == 'merge_group'
+     sleep 2; echo "Lints Successful"
+ expensive_checks:
+  if: github.event_name == 'merge_group'
+  runs-on: ubuntu-latest
+  steps:
+  - name: Run tests
     run: |
-      sleep 300; echo "Expensive checks Successful"; "[ true ]"
+     sleep 300; echo "Expensive checks Successful"
 
-  can_enqueue:
-    needs: [tests, lints]
-    if: always() && github.event_name != 'merge_group'
-    permissions:
-      actions: read
-    runs-on: ubuntu-latest
-    steps:
-    - env:
-        NEEDS_JSON: "${{toJSON(needs)}}"
-      name: Transform outcomes
-      run: |
-        echo "ALL_SUCCESS=$(echo "$NEEDS_JSON" | jq '. | to_entries | map([.value.result == "success", .value.result == "skipped"] | any) | all')" >>$GITHUB_ENV        
-    - name: check outcomes
-      run: "[ $ALL_SUCCESS == true ]"
+ can_enqueue:
+  needs: [tests, lints]
+  if: always() && github.event_name != 'merge_group'
+  permissions:
+   actions: read
+  runs-on: ubuntu-latest
+  steps:
+   - env:
+      NEEDS_JSON: "${{toJSON(needs)}}"
+     name: Transform outcomes
+     run: |
+      echo "ALL_SUCCESS=$(echo "$NEEDS_JSON" | jq '. | to_entries | map([.value.result == "success", .value.result == "skipped"] | any) | all')" >>$GITHUB_ENV
+   - name: check outcomes
+     run: |
+       # Quote and default to "false" if empty to avoid unary-operator errors
+       if [ "${ALL_SUCCESS:-false}" = "true" ]; then
+         echo "All required jobs succeeded (or were skipped)."
+       else
+         echo "Required jobs failed." >&2
+         exit 1
+       fi
 
-  can_merge:
-    needs: [tests, lints, expensive_checks]
-    if: always() && github.event_name == 'merge_group'
-    # Same thing as above, from here on:
-    permissions:
-      actions: read
-    runs-on: ubuntu-latest
-    steps:
-    - env:
-        NEEDS_JSON: "${{toJSON(needs)}}"
-      name: Transform outcomes
-      run: |
-        echo "ALL_SUCCESS=$(echo "$NEEDS_JSON" | jq '. | to_entries | map([.value.result == "success", .value.result == "skipped"] | any) | all')" >>$GITHUB_ENV
-    - name: check outcomes
-      run: "[ $ALL_SUCCESS == true ]"
+ can_merge:
+  needs: [tests, lints, expensive_checks]
+  if: always() && github.event_name == 'merge_group'
+  # Same thing as above, from here on:
+  permissions:
+   actions: read
+  runs-on: ubuntu-latest
+  steps:
+   - env:
+      NEEDS_JSON: "${{toJSON(needs)}}"
+     name: Transform outcomes
+     run: |
+      echo "ALL_SUCCESS=$(echo "$NEEDS_JSON" | jq '. | to_entries | map([.value.result == "success", .value.result == "skipped"] | any) | all')" >>$GITHUB_ENV
+   - name: check outcomes
+     run: |
+       # Quote and default to "false" if empty to avoid unary-operator errors
+       if [ "${ALL_SUCCESS:-false}" = "true" ]; then
+         echo "All required jobs succeeded (or were skipped)."
+       else
+         echo "Required jobs failed." >&2
+         exit 1
+       fi
+  
+ can_see_status:
+  runs-on: ubuntu-latest
+  steps:
+   - run: true
