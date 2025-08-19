@@ -2,8 +2,8 @@
 name: Continuous Integration
 
 on:  # yamllint disable-line rule:truthy
- - merge_group:
- - pull_request:
+ merge_group:
+ pull_request:
 
 jobs:
  tests:
