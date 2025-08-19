@@ -70,3 +70,8 @@ jobs:
          echo "Required jobs failed." >&2
          exit 1
        fi
+  
+ can_see_status:
+  runs-on: ubuntu-latest
+  steps:
+   - run: true
