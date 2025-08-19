@@ -19,7 +19,7 @@ jobs:
      env:
       REPO: ${{ github.repository }}
       REF: ${{ github.sha }}
-      run: |
+     run: |
        CONT_URL="https://raw.githubusercontent.com/${REPO}/${REF}/CONTRIBUTING.md"
        SNIPPET=$(curl -sSfL $CONT_URL \
          | sed -n '/<!-- start-trivial-prs -->/,/<!-- end-trivial-prs -->/p' \
