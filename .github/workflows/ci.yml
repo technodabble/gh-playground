@@ -48,7 +48,7 @@ jobs:
        else
          echo "Required jobs failed." >&2
          exit 1
-       fi"[ $ALL_SUCCESS == true ]"
+       fi
 
  can_merge:
   needs: [tests, lints, expensive_checks]
@@ -73,4 +73,4 @@ jobs:
        else
          echo "Required jobs failed." >&2
          exit 1
-       fi"[ $ALL_SUCCESS == true ]"
+       fi
